@@ -1,10 +1,13 @@
 package server
 
-import "path/filepath"
+import (
+	"github.com/nhomble/gemini-server/spec"
+	"path/filepath"
+)
 
 var mime = map[string]string{
-	".gmi":    "text/gemini",
-	".gemini": "text/gemini",
+	".gmi":    spec.GEMINI_MIME,
+	".gemini": spec.GEMINI_MIME,
 }
 
 func ChooseMime(path string) string {
