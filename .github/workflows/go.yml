@@ -29,8 +29,10 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
-      run: go build -v .
+    - name: Build Server
+      run: go build -v ./server
+    - name: Build Spec
+      rune: go build -v ./spec
 
     - name: Test
       run: go test -v ./integration-test/file-server
