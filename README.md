@@ -16,7 +16,7 @@ import (
 
 func main(){
     root, _ := os.Getwd()
-	server.ListenAndServe("", "path/to/public.pem", "path/to/private.pem", server.FileServingRequestHandler{Root: root})
+    server.ListenAndServe("", "path/to/public.pem", "path/to/private.pem", server.FileServingRequestHandler{Root: root})
 }
 ```
 
