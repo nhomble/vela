@@ -1,6 +1,7 @@
 vela
 ====
 ![Go](https://github.com/nhomble/vela/workflows/Go/badge.svg)
+
 a [gemini](https://gemini.circumlunar.space/docs/specification.html) server
 
 # Usage
