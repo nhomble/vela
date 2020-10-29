@@ -1,6 +1,8 @@
 package spec
 
 import (
+	"io"
+	"io/ioutil"
 	"net"
 	"net/url"
 	"strconv"
@@ -24,7 +26,7 @@ func IsValidRequest(line []byte) (bool, string) {
 
 type Response struct {
 	Status *Status
-	Body   *string
+	Body   io.ReadCloser
 }
 
 type Request struct {
@@ -37,7 +39,8 @@ func (resp *Response) WriteTo(c net.Conn) {
 	c.Write([]byte(resp.Status.Metadata))
 	c.Write([]byte(CRLF))
 	if resp.Status.isSuccess() {
-		c.Write([]byte(*resp.Body))
+		b, _ := ioutil.ReadAll(resp.Body)
+		c.Write(b)
 		c.Write([]byte(CRLF))
 	}
 }

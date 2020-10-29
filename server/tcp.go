@@ -45,53 +45,49 @@ func handleConnection(handler RequestHandler, c net.Conn) {
 	start := time.Now()
 	addr := c.RemoteAddr().String()
 	log.Printf("Received request from address=%s\n", addr)
-	var status *spec.Status
-	var body *string
 	var target *url.URL
+	resp := &spec.Response{}
 	tlscon, ok := c.(*tls.Conn)
 	if !ok {
-		status = spec.CertificateFailure("Did not establish tls connection")
+		resp.Status = spec.CertificateFailure("Did not establish tls connection")
 	} else {
 		line, isprefix, err := bufio.NewReader(tlscon).ReadLine()
 		for {
 
 			if isprefix {
-				status = spec.PermanentFailure("Request was too long for buffer")
+				resp.Status = spec.PermanentFailure("Request was too long for buffer")
 				break
 			}
 			if err != nil {
-				status = spec.PermanentFailure(fmt.Sprintf("%v", err))
+				resp.Status = spec.PermanentFailure(fmt.Sprintf("%v", err))
 				break
 			}
 			isvalid, reason := spec.IsValidRequest(line)
 			if !isvalid {
-				status = spec.PermanentFailure(reason)
+				resp.Status = spec.PermanentFailure(reason)
 				break
 			}
 
 			target, err = url.Parse(string(line))
 			if err != nil {
-				status = spec.PermanentFailure(fmt.Sprintf("%v", err))
+				resp.Status = spec.PermanentFailure(fmt.Sprintf("%v", err))
 				break
 			}
 
 			if target.Scheme != spec.SCHEME {
-				status = spec.PermanentFailure(fmt.Sprintf("Scheme=%s is invalid\n", target.Scheme))
+				resp.Status = spec.PermanentFailure(fmt.Sprintf("Scheme=%s is invalid\n", target.Scheme))
 				break
 			}
 
-			resp := handler.Handle(&spec.Request{
+			resp = handler.Handle(&spec.Request{
 				URL: target,
 			})
-			status = resp.Status
-			body = resp.Body
+			defer resp.Body.Close()
 			break
 		}
 	}
-	(&spec.Response{
-		Status: status,
-		Body:   body,
-	}).WriteTo(tlscon)
+	resp.WriteTo(tlscon)
+
 	end := time.Now()
 	t := ""
 	if target != nil {

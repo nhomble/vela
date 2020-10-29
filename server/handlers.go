@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"github.com/nhomble/gemini-server/spec"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -14,7 +13,7 @@ type FileServingRequestHandler struct {
 
 func (handler FileServingRequestHandler) Handle(request *spec.Request) *spec.Response {
 	complete := path.Join(handler.Root, request.URL.Path)
-	data, err := ioutil.ReadFile(complete)
+	f, err := os.Open(complete)
 	resp := spec.Response{}
 
 	if os.IsNotExist(err) {
@@ -28,7 +27,6 @@ func (handler FileServingRequestHandler) Handle(request *spec.Request) *spec.Res
 	}
 
 	resp.Status = spec.SuccessStatus(ChooseMime(complete))
-	loaded := string(data)
-	resp.Body = &loaded
+	resp.Body = f
 	return &resp
 }
