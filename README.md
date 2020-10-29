@@ -10,8 +10,7 @@ package main
 
 import (
 	"github.com/nhomble/gemini-server/server"
-	"net/http"
-"os"
+    "os"
 )
 
 func main(){
