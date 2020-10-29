@@ -9,7 +9,7 @@ a [gemini](https://gemini.circumlunar.space/docs/specification.html) server
 package main
 
 import (
-	"github.com/nhomble/gemini-server/server"
+    "github.com/nhomble/gemini-server/server"
     "os"
 )
 
