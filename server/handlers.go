@@ -15,12 +15,10 @@ func (handler FileServingRequestHandler) Handle(request *spec.Request) *spec.Res
 	complete := path.Join(handler.Root, request.URL.Path)
 	f, err := os.Open(complete)
 	resp := spec.Response{}
-
 	if os.IsNotExist(err) {
 		resp.Status = spec.TemporaryFailure("Does not exist")
 		return &resp
 	}
-
 	if err != nil {
 		resp.Status = spec.PermanentFailure(fmt.Sprintf("%v", err))
 		return &resp

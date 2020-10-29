@@ -82,7 +82,9 @@ func handleConnection(handler RequestHandler, c net.Conn) {
 			resp = handler.Handle(&spec.Request{
 				URL: target,
 			})
-			defer resp.Body.Close()
+			if resp.Body != nil {
+				defer resp.Body.Close()
+			}
 			break
 		}
 	}
@@ -93,5 +95,5 @@ func handleConnection(handler RequestHandler, c net.Conn) {
 	if target != nil {
 		t = target.String()
 	}
-	log.Printf("Completed request from addr=%s destination=%s in duration=%d ms\n", addr, t, end.Sub(start).Milliseconds())
+	log.Printf("Completed request status=%s from addr=%s destination=%s in duration=%d ms\n", resp.Status.Code, addr, t, end.Sub(start).Milliseconds())
 }
