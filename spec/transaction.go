@@ -33,16 +33,30 @@ type Request struct {
 	URL *url.URL
 }
 
-func (resp *Response) WriteTo(c net.Conn) {
-	c.Write([]byte(resp.Status.Code))
-	c.Write([]byte{0x20})
-	c.Write([]byte(resp.Status.Metadata))
-	c.Write([]byte(CRLF))
+func (resp *Response) WriteTo(c net.Conn) int {
+	ret := 0
+
+	i, _ := c.Write([]byte(resp.Status.Code))
+	ret += i
+
+	i, _ = c.Write([]byte{0x20})
+	ret += i
+
+	i, _ = c.Write([]byte(resp.Status.Metadata))
+	ret += i
+
+	i, _ = c.Write([]byte(CRLF))
+	ret += i
+
 	if resp.Status.isSuccess() {
 		b, _ := ioutil.ReadAll(resp.Body)
-		c.Write(b)
-		c.Write([]byte(CRLF))
+		i, _ = c.Write(b)
+		ret += i
+
+		i, _ = c.Write([]byte(CRLF))
+		ret += i
 	}
+	return ret
 }
 
 type Status struct {

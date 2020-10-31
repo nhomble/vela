@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/nhomble/gemini-server/spec"
-	"log"
 	"net"
 	"net/url"
 	"strconv"
@@ -43,8 +42,6 @@ func ListenAndServe(address string, pem string, key string, handler RequestHandl
 func handleConnection(handler RequestHandler, c net.Conn) {
 	defer c.Close()
 	start := time.Now()
-	addr := c.RemoteAddr().String()
-	log.Printf("Received request from address=%s\n", addr)
 	var target *url.URL
 	resp := &spec.Response{}
 	tlscon, ok := c.(*tls.Conn)
@@ -88,12 +85,20 @@ func handleConnection(handler RequestHandler, c net.Conn) {
 			break
 		}
 	}
-	resp.WriteTo(tlscon)
+	sizeOf := resp.WriteTo(tlscon)
 
-	end := time.Now()
-	t := ""
+	clientAddr := ""
+	endpoint := ""
 	if target != nil {
-		t = target.String()
+		clientAddr = target.Hostname()
+		endpoint = target.Path
 	}
-	log.Printf("Completed request status=%s from addr=%s destination=%s in duration=%d ms\n", resp.Status.Code, addr, t, end.Sub(start).Milliseconds())
+	accessLog := CommonLog{
+		clientHost:   clientAddr,
+		time:         start,
+		url:          endpoint,
+		status:       resp.Status.Code,
+		responseSize: sizeOf,
+	}.format()
+	fmt.Println(accessLog)
 }
